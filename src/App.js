@@ -1,25 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import react from "react";
+import productsApi from "./api.js";
+class App extends react.Component {
+  state = { data: null, isLoading: false, error: "" };
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  async componentDidMount() {
+    this.setState({ isLoading: true });
+    try {
+      const { data } = await productsApi.get("shoes");
+      this.setState({ data, isLoading: false }, () => {
+        console.log(this.state.data);
+      });
+    } catch (e) {
+      this.setState({ error: e.messege });
+    }
+  }
+
+  displayProduct = () => {
+    return this.state.data.map((product, key) => {
+      return (
+        <div key={product.id} className="item">
+          <h3>{product.brand}</h3>
+          <h2>{product.price} $ </h2>
+          <img src={product.image} alt="" />
+
+          <button>update✏️</button>
+          <button>delete🗑️</button>
+          <button>create🗑️</button>
+        </div>
+      );
+    });
+  };
+  render() {
+    return (
+      <div className="App">
+        {this.state.isLoading && <h2>Loading...</h2>}
+
+        {this.state.data && this.displayProduct()}
+      </div>
+    );
+  }
 }
-
 export default App;
